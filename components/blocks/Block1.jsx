@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import CodeEditor from "@/components/CodeEditor";
 import { getDuckConn } from "@/services/duckdb";
 import DataGrid from "@/components/DataGrid";
+import { parseDuckResult } from "@/services/duckutils";
+import CodeBlock from "@/components/CodeBlock";
 
 export default function Block1() {
-    const [doc, setDoc] = useState(
-        "-- Load the required tables\nSHOW TABLES;"
-    );
+    const [doc, setDoc] = useState("-- Load the required tables\nSHOW TABLES;");
     const [tableData, setTableData] = useState({
         columnDefs: [
             {
@@ -20,10 +20,12 @@ export default function Block1() {
         ],
         rowData: [],
     });
+
     const [tableActive, setTableActive] = useState(false);
+    const [blockMessage, setBlockMessage] = useState("");
 
     return (
-        <div className="mx-auto my-2 w-full max-w-2xl p-3 flex flex-col border border-gray-500 rounded-md">
+        <CodeBlock name="Load tables block...">
             <div className="flex flex-row mb-2 justify-between">
                 <div className="flex flex-row items-center">
                     <button
@@ -34,54 +36,7 @@ export default function Block1() {
                             await duck.conn
                                 .query("SHOW TABLES;")
                                 .then((result) => {
-                                    const tableSchema =
-                                        result.schema.fields.map(
-                                            (item, idx) => {
-                                                return {
-                                                    name: item.name,
-                                                    type: item.type,
-                                                    nullable: item.nullable,
-                                                };
-                                            }
-                                        );
-                                    const tableMetaData = {
-                                        schema: tableSchema,
-                                        numCols: result.numCols,
-                                        numRows: result.numRows,
-                                        nullRowsCount: result.nullCount,
-                                    };
-
-                                    const headerData = result.schema.fields.map(
-                                        (item, idx) => {
-                                            return {
-                                                field: item.name,
-                                                headerName: item.name,
-                                            };
-                                        }
-                                    );
-
-                                    const rowData = JSON.parse(
-                                        JSON.stringify(
-                                            result.toArray(),
-                                            (key, value) =>
-                                                typeof value === "bigint"
-                                                    ? value.toString()
-                                                    : value // return everything else unchanged
-                                        )
-                                    );
-
-                                    headerData.push({
-                                        headerName: "",
-                                        valueGetter: "node.rowIndex + 1",
-                                        editable: false,
-                                        pinned: "left",
-                                        width: 50,
-                                    });
-
-                                    setTableData({
-                                        columnDefs: headerData,
-                                        rowData: rowData,
-                                    });
+                                    setTableData(parseDuckResult(result));
                                     setTableActive(true);
                                 })
                                 .catch((_error) => {
@@ -118,13 +73,20 @@ export default function Block1() {
                             } catch (error) {
                                 console.log(error);
                             } finally {
+                                setBlockMessage(
+                                    "Tables loaded successfully! 🎉"
+                                );
                             }
                         }}
                     >
                         Load Tables
                     </button>
                 </div>
-                <div></div>
+                <div>
+                    {blockMessage !== "" && (
+                        <p className="text-sm font-medium">{blockMessage}</p>
+                    )}
+                </div>
             </div>
             <CodeEditor
                 className={"w-full"}
@@ -136,6 +98,6 @@ export default function Block1() {
                     <DataGrid tableData={tableData} className="h-24" />
                 </div>
             )}
-        </div>
+        </CodeBlock>
     );
 }
