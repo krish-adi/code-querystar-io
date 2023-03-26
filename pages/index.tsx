@@ -3,16 +3,25 @@ import CodeEditor from "@/components/CodeEditor";
 
 export default function Home() {
     const [doc, setDoc] = useState(
-        "\n\nSELECT \n  f.first_name, \n  f.last_name \nFROM \n  yc.yc_founders f \nJOIN \n  yc.yc_companies c ON f.current_company = c.name \nWHERE \n  f.last_name IN (\n    SELECT \n      last_name \n    FROM \n      yc.yc_founders \n    GROUP BY \n      last_name \n    HAVING \n      COUNT(DISTINCT current_company) >= 3\n  ) \nGROUP BY \n  f.first_name, \n  f.last_name \nHAVING \n  COUNT(DISTINCT c.name) >= 3"
+        "-- Start typing your SQL code here\n\n\n\n\n\n\n"
     );
     return (
         <>
-            <main className="h-screen w-screen flex flex-col justify-center">
-                <CodeEditor
-                    className={"max-w-lg mx-auto"}
-                    initialDoc={doc}
-                    onChange={setDoc}
-                />
+            <main className="h-screen w-screen">
+                <div className="contianer h-full flex flex-col py-10">
+                    <div className="mx-auto w-full max-w-2xl p-3 flex flex-col border border-gray-500 rounded-md">
+                        <div className="flex flex-row mb-2">
+                            <button className="py-1 px-2 font-light text-xs bg-blue-500 text-white rounded-sm">
+                                RUN
+                            </button>
+                        </div>
+                        <CodeEditor
+                            className={"w-full"}
+                            initialDoc={doc}
+                            onChange={setDoc}
+                        />
+                    </div>
+                </div>
             </main>
         </>
     );
