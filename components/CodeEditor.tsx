@@ -1,9 +1,17 @@
 import React, { useCallback, useEffect } from "react";
 import useCodeMirror from "./useCodemirror";
 
-export default function CodeEditor({ initialDoc, onChange, className }) {
+export default function CodeEditor({
+    initialDoc,
+    onChange,
+    className,
+}: {
+    initialDoc: string;
+    onChange: (doc: string) => void;
+    className: string;
+}) {
     const handleChange = useCallback(
-        (state) => {
+        (state: string) => {
             onChange(state);
         },
         [onChange]

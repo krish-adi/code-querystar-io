@@ -35,11 +35,11 @@ export default function Block1() {
 
                             await duck.conn
                                 .query("SHOW TABLES;")
-                                .then((result) => {
+                                .then((result: any) => {
                                     setTableData(parseDuckResult(result));
                                     setTableActive(true);
                                 })
-                                .catch((_error) => {
+                                .catch((_error: any) => {
                                     console.log(_error);
                                 });
                         }}

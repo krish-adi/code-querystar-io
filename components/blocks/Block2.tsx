@@ -4,10 +4,13 @@ import { getDuckConn } from "@/services/duckdb";
 import DataGrid from "@/components/DataGrid";
 import { parseDuckResult } from "@/services/duckutils";
 import CodeBlock from "@/components/CodeBlock";
+import { useCompletions } from "@/components/completionsStore";
 
 export default function Block2() {
     const [doc, setDoc] = useState(
-        "-- Start typing your SQL code here\n\n\n\n\n\n"
+        `-- Use QueryStar completions to generate SQL queries
+-- Type your question inside '--?' and '--/'
+\n\n\n`
     );
     const [tableData, setTableData] = useState({
         columnDefs: [
@@ -23,7 +26,7 @@ export default function Block2() {
         rowData: [],
     });
     const [tableActive, setTableActive] = useState(false);
-    const [blockMessage, setBlockMessage] = useState("");
+    const fetchStatus = useCompletions((state) => state.fetchStatus);
 
     return (
         <CodeBlock name="QueryStar completions block...">
@@ -36,11 +39,11 @@ export default function Block2() {
 
                             await duck.conn
                                 .query(doc)
-                                .then((result) => {
+                                .then((result: any) => {
                                     setTableData(parseDuckResult(result));
                                     setTableActive(true);
                                 })
-                                .catch((_error) => {
+                                .catch((_error: any) => {
                                     console.log(_error);
                                 });
                         }}
@@ -49,8 +52,8 @@ export default function Block2() {
                     </button>
                 </div>
                 <div>
-                    {blockMessage !== "" && (
-                        <p className="text-sm font-medium">{blockMessage}</p>
+                    {fetchStatus !== "idle" && (
+                        <p className="text-sm font-medium">{fetchStatus}</p>
                     )}
                 </div>
             </div>

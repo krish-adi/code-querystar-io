@@ -71,9 +71,9 @@ class InlineSuggestionWidget extends WidgetType {
     }
 }
 
-type InlineFetchFn = (state: EditorState) => Promise<string>;
+type FetchCompletionFn = (state: EditorState) => Promise<string | null>;
 
-export const fetchSuggestion = (fetchFn: InlineFetchFn) =>
+export const fetchSuggestion = (fetchFn: FetchCompletionFn) =>
     ViewPlugin.fromClass(
         class Plugin {
             async update(update: ViewUpdate) {
@@ -144,6 +144,12 @@ const inlineSuggestionKeymap = Prec.highest(
                 return true;
             },
         },
+        {
+            key: "Escape",
+            run: (view) => {
+                return true;
+            },
+        },
     ])
 );
 
@@ -182,7 +188,7 @@ function insertCompletionText(
 }
 
 type InlineSuggestionOptions = {
-    fetchFn: (state: EditorState) => Promise<string>;
+    fetchFn: FetchCompletionFn;
     delay?: number;
 };
 

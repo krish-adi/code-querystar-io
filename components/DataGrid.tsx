@@ -1,30 +1,23 @@
-import React, { useRef, useMemo, useState, useEffect } from "react";
+import React, { useMemo } from "react";
 
 import { AgGridReact } from "ag-grid-react"; // the AG Grid React Component
 import "ag-grid-community/styles/ag-grid.css"; // Core grid CSS, always needed
 import "ag-grid-community/styles/ag-theme-alpine.css"; // Optional theme CSS
 import "ag-grid-community/styles/ag-theme-balham.css"; // Optional theme CSS
 
+interface TableData {
+    columnDefs: any[];
+    rowData: any[];
+}
+
 export default function DataGrid({
     className,
     tableData,
-    // tableData = {
-    //     columnDefs: [
-    //         {
-    //             headerName: "",
-    //             valueGetter: "node.rowIndex + 1",
-    //             editable: false,
-    //             pinned: "left",
-    //             width: 50,
-    //         },
-    //         { field: "no-tables-queried", headerName: "no-tables-queried" },
-    //     ],
-    //     rowData: [],
-    // },
+}: {
+    className: string;
+    tableData: TableData;
 }) {
-    const gridRef = useRef(); // Optional - for accessing Grid's API
-
-    const formatObject = ({ value }) => {
+    const formatObject = ({ value }: { value: any }) => {
         if (typeof value === "object") {
             return JSON.stringify(value);
         } else {
@@ -45,19 +38,9 @@ export default function DataGrid({
         []
     );
 
-    const rowDataUpdated = ({ gridApi, columnApi }) => {
-        const allColumnIds = [];
-        columnApi.getColumns().forEach((column) => {
-            allColumnIds.push(column.getId());
-        });
-        columnApi.autoSizeColumns(allColumnIds, false);
-    };
-
     return (
         <div className={`ag-theme-balham w-full ${className}`}>
             <AgGridReact
-                ref={gridRef} // Ref for accessing Grid's API
-                onRowDataUpdated={rowDataUpdated}
                 rowData={tableData.rowData} // Row Data for Rows
                 columnDefs={tableData.columnDefs} // Column Defs for Columns
                 defaultColDef={defaultColDef} // Default Column Properties

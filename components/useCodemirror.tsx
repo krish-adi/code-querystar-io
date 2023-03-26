@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, LegacyRef } from "react";
 import { EditorState } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 import { defaultKeymap } from "@codemirror/commands";
@@ -6,11 +6,18 @@ import { oneDark } from "@codemirror/theme-one-dark";
 import { basicSetup } from "codemirror";
 import { sql } from "@codemirror/lang-sql";
 import inlineSuggestion from "./inlineSuggestions";
-import { fetchSuggestion } from "./suggestionsAPI";
+import { useCompletions } from "./completionsStore";
 
-export default function useCodeMirror({ initialDoc, onChange }) {
-    const editorRef = useRef(null);
-    const [editorView, setEditorView] = useState();
+export default function useCodeMirror({
+    initialDoc,
+    onChange,
+}: {
+    initialDoc: string;
+    onChange: (doc: string) => void;
+}) {
+    const editorRef = useRef<HTMLDivElement>(null);
+    const [editorView, setEditorView] = useState<EditorView>();
+    const fetchCompletion = useCompletions((state) => state.fetchCompletion);
 
     useEffect(() => {
         if (!editorRef.current) return;
@@ -19,7 +26,7 @@ export default function useCodeMirror({ initialDoc, onChange }) {
             doc: initialDoc,
             extensions: [
                 basicSetup,
-                keymap.of([defaultKeymap]),
+                keymap.of(defaultKeymap),
                 sql(),
                 oneDark,
                 EditorView.lineWrapping,
@@ -30,7 +37,7 @@ export default function useCodeMirror({ initialDoc, onChange }) {
                 }),
                 inlineSuggestion({
                     delay: 600,
-                    fetchFn: fetchSuggestion,
+                    fetchFn: fetchCompletion,
                 }),
             ],
         });
